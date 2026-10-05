@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IEEE ISAIA 2026 — Beyond the Chatbot: Demo Briefing & Harness</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Agent Economics: Beyond the Chatbot</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -15,191 +13,136 @@
           colors: {
             brand: {
               navy: '#14283D',
-              dark: '#0F1C2A',
               burgundy: '#7A1835',
               gold: '#C9982D',
-              cream: '#F2E8D4',
-              surface: '#FFFFFF',
-              border: '#D9C69A',
-              slate: '#6E6A63'
+              dark: '#0B1622',
+              slate: '#475569',
+              border: '#E2E8F0'
             }
-          },
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['Fira Code', 'Courier New', 'monospace']
           }
         }
       }
     }
   </script>
   <style>
-    body { background-color: #F8F9FA; color: #14283D; }
-    .stripe-burgundy { border-left: 6px solid #7A1835; }
-    .stripe-gold { border-left: 6px solid #C9982D; }
-    .stripe-navy { border-left: 6px solid #14283D; }
+    .stripe-burgundy { border-top: 4px solid #7A1835; }
+    .stripe-gold { border-top: 4px solid #C9982D; }
+    .stripe-navy { border-top: 4px solid #14283D; }
+    .tab-active { border-bottom: 2px solid #C9982D; color: #C9982D; font-weight: bold; }
+    .tab-inactive { color: #6b7280; border-bottom: 2px solid transparent; }
+    .tab-inactive:hover { color: #374151; border-color: #d1d5db; }
   </style>
 </head>
-<body class="font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-gray-50 text-gray-900 font-sans leading-relaxed selection:bg-brand-gold selection:text-brand-dark">
 
-  <!-- TOP CONFERENCE BANNER -->
-  <header class="bg-brand-dark text-white border-b-2 border-brand-gold py-4 px-6 md:px-12 shadow-md">
-    <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
-      <div>
-        <p class="text-xs uppercase tracking-widest text-brand-gold font-semibold">IEEE ISAIA 2026 · Technical Workshop Demo</p>
-        <h1 class="text-xl md:text-2xl font-bold tracking-tight">Beyond the Chatbot: Architecture, Autonomy & Inference Economics</h1>
+  <!-- HEADER -->
+  <header class="bg-brand-navy text-white py-12 px-6 relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-burgundy via-brand-gold to-brand-burgundy"></div>
+    <div class="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+      <div class="max-w-2xl">
+        <span class="inline-block px-3 py-1 bg-brand-burgundy text-white text-xs font-bold rounded-full uppercase tracking-wider mb-4">IEEE ISAIA 2026 Interactive Demonstration</span>
+        <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">Beyond the Chatbot: Architecture, Autonomy, and Inference Economics</h1>
+        <p class="text-lg text-gray-300 font-light max-w-xl">
+          An executive briefing and interactive visualizer demonstrating the severe economic risks of naive autonomous loops, and the mitigation power of architectural governance.
+        </p>
       </div>
-      <div class="text-xs text-right text-gray-300 space-y-0.5">
-        <p><span class="text-brand-gold font-semibold">Satya Prakash</span> · EY & DC Lab Collaborator, FDU</p>
-        <p>Rohan Shahane · Dr. Avimanyou Vatsa (DC Lab, FDU)</p>
+      <div class="hidden md:flex shrink-0">
+        <div class="w-24 h-24 bg-brand-gold/10 rounded-full flex items-center justify-center border border-brand-gold/20 shadow-xl">
+          <svg class="w-10 h-10 text-brand-gold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+          </svg>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <main class="max-w-6xl mx-auto flex-1 p-6 md:p-12 space-y-12">
+  <!-- MAIN CONTENT -->
+  <main class="max-w-5xl mx-auto p-6 my-6 space-y-12">
 
-    <!-- HERO INTRODUCTION -->
-    <section class="bg-white rounded-xl shadow-sm border border-brand-border p-8 relative overflow-hidden">
-      <div class="absolute top-0 right-0 w-32 h-32 bg-brand-cream opacity-40 rounded-bl-full pointer-events-none"></div>
-      <div class="max-w-3xl">
-        <span class="inline-block px-3 py-1 bg-brand-burgundy text-white text-xs font-bold rounded-full uppercase tracking-wider mb-3">Live Incident Briefing</span>
-        <h2 class="text-3xl font-extrabold text-brand-navy mb-3 tracking-tight">Case Study: The Runaway FinOps Investigator</h2>
-        <p class="text-brand-slate text-base leading-relaxed">
-          When autonomous agents encounter real-world infrastructure failures, unbounded execution loops turn minor API errors into severe token inflation. This live demo recreates that failure mode on an enterprise billing anomaly and demonstrates how our four architectural controls restore deterministic execution.
-        </p>
+    <!-- DATA VISUALIZER TABS -->
+    <section>
+      <div class="flex justify-between items-end mb-6 border-b border-gray-200">
+        <h3 class="text-2xl font-bold text-brand-navy">Interactive Economics Visualizer</h3>
+        <div class="flex gap-4">
+          <button id="tab-synthetic" onclick="switchData('synthetic')" class="tab-active pb-2 px-1 text-sm uppercase tracking-wide transition-colors">Synthetic Baseline (Deterministic)</button>
+          <button id="tab-live" onclick="switchData('live')" class="tab-inactive pb-2 px-1 text-sm uppercase tracking-wide transition-colors">Latest Live Execution (Groq API)</button>
+        </div>
       </div>
-    </section>
 
-    <!-- SECTION 1: THE ENTERPRISE INCIDENT -->
-    <section class="space-y-4">
-      <h3 class="text-xl font-bold text-brand-navy flex items-center gap-2">
-        <span class="w-3 h-3 rounded-full bg-brand-burgundy inline-block"></span>
-        1. Enterprise Alert & Injected Fault
-      </h3>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Incident Ticket -->
-        <div class="bg-white rounded-xl border border-brand-border p-6 shadow-sm stripe-burgundy">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <span class="text-xs font-mono font-bold text-brand-burgundy uppercase">INC-8492 · P2 Severe</span>
-              <h4 class="text-lg font-bold text-brand-navy mt-1">Cloud Spend Spike Anomaly (+38%)</h4>
+      <!-- VISUALIZER CONTAINER -->
+      <div id="visualizer-container" class="space-y-8">
+        
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-red-50 border border-red-200 rounded-xl p-5 shadow-sm">
+            <h4 class="text-red-900 font-bold uppercase text-xs tracking-wider mb-2">Run A: Unconstrained (Frontier Loop)</h4>
+            <div class="flex justify-between items-end">
+              <div>
+                <p class="text-3xl font-black text-red-700" id="stat-a-tokens">--</p>
+                <p class="text-xs text-red-900/70 font-semibold">Total Input Tokens</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xl font-bold text-red-700" id="stat-a-cost">--</p>
+                <p class="text-xs text-red-900/70 font-semibold">Inference Spend</p>
+              </div>
             </div>
-            <span class="px-2.5 py-1 bg-red-100 text-red-800 text-xs font-bold rounded">Active Alert</span>
+            <p id="stat-a-status" class="mt-3 text-xs font-bold text-red-800 bg-red-200 inline-block px-2 py-1 rounded">--</p>
           </div>
-          <p class="text-sm text-brand-slate mb-4">
-            Automated FinOps telemetry detected an unbudgeted +38% spend increase week-over-week across enterprise clusters.
-          </p>
-          <div class="bg-gray-50 border border-gray-200 rounded p-3 text-xs font-mono text-gray-800">
-            <strong>Goal:</strong> "Query billing API for 'sub-prod-analytics-01', isolate the runaway resource group, and propose remediation."
-          </div>
-        </div>
 
-        <!-- The Injected Fault -->
-        <div class="bg-white rounded-xl border border-brand-border p-6 shadow-sm stripe-gold">
-          <div class="flex justify-between items-start mb-4">
-            <div>
-              <span class="text-xs font-mono font-bold text-brand-gold uppercase">Real-World Environmental Glitch</span>
-              <h4 class="text-lg font-bold text-brand-navy mt-1">IAM Migration: HTTP 404 Not Found</h4>
+          <div class="bg-brand-navy border border-brand-dark rounded-xl p-5 shadow-sm text-white">
+            <h4 class="text-brand-gold font-bold uppercase text-xs tracking-wider mb-2">Run B: Governed (4 Controls)</h4>
+            <div class="flex justify-between items-end">
+              <div>
+                <p class="text-3xl font-black text-white" id="stat-b-tokens">--</p>
+                <p class="text-xs text-gray-400 font-semibold">Total Input Tokens</p>
+              </div>
+              <div class="text-right">
+                <p class="text-xl font-bold text-white" id="stat-b-cost">--</p>
+                <p class="text-xs text-gray-400 font-semibold">Inference Spend</p>
+              </div>
             </div>
-            <span class="px-2.5 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded">Injected Fault</span>
-          </div>
-          <p class="text-sm text-brand-slate mb-4">
-            The target cloud subscription was renamed in enterprise IAM over the weekend. Calls to the legacy pointer return an <code>HTTP 404</code> with a 45-line Python stack trace.
-          </p>
-          <div class="bg-gray-50 border border-gray-200 rounded p-3 text-xs font-mono text-red-700">
-            HTTP/1.1 404 Not Found<br>
-            ErrorCode: SubscriptionNotFound<br>
-            Message: Pointer 'sub-prod-analytics-01' decommissioned.
+            <p id="stat-b-status" class="mt-3 text-xs font-bold text-brand-dark bg-brand-gold inline-block px-2 py-1 rounded">--</p>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- SECTION 2: THE FAILURE MECHANISM (SLIDE 7 BRIDGE) -->
-    <section class="bg-white rounded-xl border border-brand-border p-8 shadow-sm">
-      <h3 class="text-xl font-bold text-brand-navy mb-2 flex items-center gap-2">
-        <span class="w-3 h-3 rounded-full bg-brand-gold inline-block"></span>
-        2. Anatomy of the Failure: The Compounding Context Snowball
-      </h3>
-      <p class="text-sm text-brand-slate mb-6">
-        Here is what happens when an agent loop runs without explicit execution budgets or context filtering (reproducing <strong class="text-brand-navy">Slide 7</strong>):
-      </p>
+        <!-- Charts -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+          <div>
+            <canvas id="tokenChart" height="200"></canvas>
+          </div>
+          <div>
+            <canvas id="costChart" height="200"></canvas>
+          </div>
+        </div>
 
-      <div class="space-y-3 font-mono text-xs">
-        <!-- Turn 1 -->
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between p-3 bg-gray-50 rounded border border-gray-200 gap-2">
-          <div class="flex items-center gap-3">
-            <span class="px-2 py-0.5 bg-brand-navy text-white font-bold rounded">Turn 1</span>
-            <span class="text-gray-800">Calls <code>query_cost_api</code> → Receives HTTP 404 Not Found</span>
+        <!-- Tables -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="bg-gray-100 px-4 py-2 border-b border-gray-200 font-bold text-xs uppercase text-gray-600">Run A Traces</div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-gray-50 text-gray-500 uppercase">
+                  <tr><th class="px-3 py-2">Turn</th><th class="px-3 py-2">Tier</th><th class="px-3 py-2">Tokens</th><th class="px-3 py-2">Status</th></tr>
+                </thead>
+                <tbody id="table-a-body" class="divide-y divide-gray-100 font-mono">
+                  <!-- JS Injected -->
+                </tbody>
+              </table>
+            </div>
           </div>
-          <span class="font-bold text-brand-navy">1,120 Tokens</span>
-        </div>
-        <!-- Turn 2 -->
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between p-3 bg-red-50 rounded border border-red-200 gap-2">
-          <div class="flex items-center gap-3">
-            <span class="px-2 py-0.5 bg-brand-burgundy text-white font-bold rounded">Turn 2</span>
-            <span class="text-gray-800">45-line raw stack trace retained in memory → Retries alternate syntax</span>
+          <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+            <div class="bg-brand-navy px-4 py-2 border-b border-brand-dark font-bold text-xs uppercase text-white">Run B Traces</div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-gray-50 text-gray-500 uppercase">
+                  <tr><th class="px-3 py-2">Turn</th><th class="px-3 py-2">Tier</th><th class="px-3 py-2">Tokens</th><th class="px-3 py-2">Status</th></tr>
+                </thead>
+                <tbody id="table-b-body" class="divide-y divide-gray-100 font-mono">
+                  <!-- JS Injected -->
+                </tbody>
+              </table>
+            </div>
           </div>
-          <span class="font-bold text-red-800">2,640 Tokens (+135%)</span>
-        </div>
-        <!-- Turn 3 -->
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between p-3 bg-red-50 rounded border border-red-200 gap-2">
-          <div class="flex items-center gap-3">
-            <span class="px-2 py-0.5 bg-brand-burgundy text-white font-bold rounded">Turn 3</span>
-            <span class="text-gray-800">Fallback search calls <code>list_resources</code> → Swallows raw 8KB JSON dump</span>
-          </div>
-          <span class="font-bold text-red-800">5,480 Tokens (+107%)</span>
-        </div>
-        <!-- Turn 4 -->
-        <div class="flex flex-col md:flex-row items-start md:items-center justify-between p-3 bg-red-100 rounded border border-red-300 gap-2">
-          <div class="flex items-center gap-3">
-            <span class="px-2 py-0.5 bg-red-800 text-white font-bold rounded">Turn 4</span>
-            <span class="text-gray-900 font-semibold">Context saturated → Repeats original failed query in loop</span>
-          </div>
-          <span class="font-bold text-red-900">9,890 Tokens (+80%)</span>
-        </div>
-      </div>
-
-      <div class="mt-4 p-4 bg-brand-navy text-white rounded-lg flex flex-col md:flex-row justify-between items-center gap-2">
-        <div>
-          <p class="font-bold text-sm text-brand-gold">Total Workload: 19,130 Tokens Consumed</p>
-          <p class="text-xs text-gray-300">Outcome: Budget exhausted, 0% resolution, unbudgeted expenditure compounding.</p>
-        </div>
-        <span class="px-3 py-1 bg-red-600 text-white text-xs font-bold rounded uppercase tracking-wider">Unresolved / Failed</span>
-      </div>
-    </section>
-
-    <!-- SECTION 3: THE FOUR GOVERNANCE CONTROLS (SLIDE 8 BRIDGE) -->
-    <section class="space-y-4">
-      <h3 class="text-xl font-bold text-brand-navy flex items-center gap-2">
-        <span class="w-3 h-3 rounded-full bg-brand-navy inline-block"></span>
-        3. Architectural Mitigation: The Four Controls
-      </h3>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Control 1 -->
-        <div class="bg-white rounded-xl border border-brand-border p-5 shadow-sm stripe-burgundy">
-          <h4 class="font-bold text-sm text-brand-navy mb-1">1. Execution Budgets</h4>
-          <p class="text-xs text-brand-slate mb-3">Hard iteration ceiling stops runaway loops.</p>
-          <code class="block bg-gray-900 text-green-400 p-2 rounded text-[11px] font-mono">max_iterations: 3<br>on_exhaust: "escalate"</code>
-        </div>
-        <!-- Control 2 -->
-        <div class="bg-white rounded-xl border border-brand-border p-5 shadow-sm stripe-gold">
-          <h4 class="font-bold text-sm text-brand-navy mb-1">2. Model Routing</h4>
-          <p class="text-xs text-brand-slate mb-3">SLM for triage; Frontier for complex reasoning.</p>
-          <code class="block bg-gray-900 text-green-400 p-2 rounded text-[11px] font-mono">tier: "triage" -> "8B"<br>tier: "reason" -> "70B"</code>
-        </div>
-        <!-- Control 3 -->
-        <div class="bg-white rounded-xl border border-brand-border p-5 shadow-sm stripe-navy">
-          <h4 class="font-bold text-sm text-brand-navy mb-1">3. Prefix Caching</h4>
-          <p class="text-xs text-brand-slate mb-3">Frozen system prompts ensure cache hits.</p>
-          <code class="block bg-gray-900 text-green-400 p-2 rounded text-[11px] font-mono">prompt_prefix: frozen<br>cache_hits: active</code>
-        </div>
-        <!-- Control 4 -->
-        <div class="bg-white rounded-xl border border-brand-border p-5 shadow-sm stripe-burgundy">
-          <h4 class="font-bold text-sm text-brand-navy mb-1">4. Context Compaction</h4>
-          <p class="text-xs text-brand-slate mb-3">Prunes bulky raw JSON dumps after Observe.</p>
-          <code class="block bg-gray-900 text-green-400 p-2 rounded text-[11px] font-mono">filter: "strip_stack"<br>retain: "error_code"</code>
         </div>
       </div>
     </section>
@@ -207,15 +150,14 @@
     <!-- SECTION 4: 1-CLICK LAUNCHPAD -->
     <section class="bg-gradient-to-r from-brand-navy to-brand-dark text-white rounded-2xl p-8 shadow-lg text-center space-y-6">
       <div class="max-w-2xl mx-auto space-y-2">
-        <span class="inline-block px-3 py-1 bg-brand-gold text-brand-dark text-xs font-bold rounded-full uppercase tracking-wider">Interactive Live Execution</span>
+        <span class="inline-block px-3 py-1 bg-brand-gold text-brand-dark text-xs font-bold rounded-full uppercase tracking-wider">Execute on Live Cloud</span>
         <h3 class="text-2xl md:text-3xl font-extrabold tracking-tight">Run the Live Demonstration in Google Colab</h3>
         <p class="text-sm text-gray-300">
-          Execute both pipelines side-by-side. Choose zero-key deterministic replay or paste a free Groq API key to test live LLM calls.
+          Execute both pipelines side-by-side. The Colab notebook will export new telemetry traces to the repository to update the "Latest Live Execution" tab above.
         </p>
       </div>
 
       <div class="flex flex-col sm:flex-row justify-center items-center gap-4 pt-2">
-        <!-- Colab Button -->
         <a id="colab-link" href="https://colab.research.google.com/github/psatyaa/isaia-agent-economics/blob/main/demo_notebook.ipynb" target="_blank"
            class="inline-flex items-center gap-3 px-8 py-4 bg-brand-gold hover:bg-yellow-500 text-brand-dark font-extrabold text-base rounded-xl shadow-lg transition-transform hover:scale-105">
           <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
@@ -223,25 +165,127 @@
           </svg>
           Open in Google Colab (1-Click Run)
         </a>
-        <!-- GitHub Repo Button -->
-        <a href="https://github.com/psatyaa/isaia-agent-economics" target="_blank"
-           class="inline-flex items-center gap-2 px-6 py-4 bg-gray-800 hover:bg-gray-700 text-white font-semibold text-sm rounded-xl border border-gray-600 transition">
-          View GitHub Repository
-        </a>
       </div>
-
-      <p class="text-xs text-gray-400">
-        Default mode runs with <strong>0 API keys required</strong> via deterministic recorded telemetry.
-      </p>
     </section>
 
   </main>
 
-  <!-- FOOTER -->
-  <footer class="bg-white border-t border-gray-200 py-6 px-6 text-center text-xs text-brand-slate">
-    <p>2026 IEEE International Conference on Intelligent Systems & Interdisciplinary Applications (IEEE ISAIA 2026)</p>
-    <p class="mt-1">Deep Chain (DC) Lab · Fairleigh Dickinson University · Open Source Research Artifact</p>
-  </footer>
+  <script>
+    let tokenChartObj = null;
+    let costChartObj = null;
 
+    async function loadData(url) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Data not available');
+        return await response.json();
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
+    }
+
+    function calculateTotals(traces) {
+      if (!traces || traces.length === 0) return { tokens: 0, cost: 0, status: 'UNKNOWN' };
+      const tokens = traces.reduce((acc, t) => acc + (t.in_tokens || 0), 0);
+      // Cost is $3.00/1M in, $15.00/1M out for frontier, much less for SLM
+      // But since we may not have exact cost in replay, we approximate if missing
+      let cost = 0;
+      traces.forEach(t => {
+        if (t.turn_cost_usd) {
+          cost += t.turn_cost_usd;
+        } else {
+          const inC = (t.model_tier === 'frontier' ? 3.0 : 0.05);
+          const outC = (t.model_tier === 'frontier' ? 15.0 : 0.05);
+          cost += ((t.in_tokens / 1000000) * inC) + ((t.out_tokens / 1000000) * outC);
+        }
+      });
+      const status = traces[traces.length - 1].status;
+      return { tokens, cost, status };
+    }
+
+    function renderTable(tbodyId, traces) {
+      const tbody = document.getElementById(tbodyId);
+      tbody.innerHTML = '';
+      if (!traces) return;
+      traces.forEach(t => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-3 py-2 font-bold">${t.turn}</td>
+          <td class="px-3 py-2"><span class="px-2 py-0.5 rounded text-[10px] uppercase font-bold ${t.model_tier === 'frontier' ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">${t.model_tier}</span></td>
+          <td class="px-3 py-2">${(t.in_tokens || 0).toLocaleString()}</td>
+          <td class="px-3 py-2 truncate max-w-[150px]" title="${t.status}">${t.status}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderCharts(totA, totB) {
+      const tCtx = document.getElementById('tokenChart').getContext('2d');
+      const cCtx = document.getElementById('costChart').getContext('2d');
+
+      if (tokenChartObj) tokenChartObj.destroy();
+      if (costChartObj) costChartObj.destroy();
+
+      tokenChartObj = new Chart(tCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Unconstrained (Run A)', 'Governed (Run B)'],
+          datasets: [{
+            label: 'Input Tokens Burned',
+            data: [totA.tokens, totB.tokens],
+            backgroundColor: ['#7A1835', '#14283D']
+          }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      });
+
+      costChartObj = new Chart(cCtx, {
+        type: 'bar',
+        data: {
+          labels: ['Unconstrained (Run A)', 'Governed (Run B)'],
+          datasets: [{
+            label: 'Inference Spend (USD)',
+            data: [totA.cost, totB.cost],
+            backgroundColor: ['#C9982D', '#14283D']
+          }]
+        },
+        options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+      });
+    }
+
+    async function switchData(mode) {
+      document.getElementById('tab-synthetic').className = mode === 'synthetic' ? 'tab-active pb-2 px-1 text-sm uppercase tracking-wide transition-colors' : 'tab-inactive pb-2 px-1 text-sm uppercase tracking-wide transition-colors';
+      document.getElementById('tab-live').className = mode === 'live' ? 'tab-active pb-2 px-1 text-sm uppercase tracking-wide transition-colors' : 'tab-inactive pb-2 px-1 text-sm uppercase tracking-wide transition-colors';
+      
+      const baseUrl = 'https://raw.githubusercontent.com/psatyaa/isaia-agent-economics/main/data/';
+      const fileUrl = mode === 'synthetic' ? baseUrl + 'replay_traces.json' : baseUrl + 'live_traces.json';
+      
+      const data = await loadData(fileUrl);
+      
+      if (!data) {
+        alert("No Live Traces found! You must run the Colab notebook in 'Live' mode and commit the 'data/live_traces.json' file to GitHub first.");
+        return;
+      }
+
+      const totA = calculateTotals(data.unconstrained);
+      const totB = calculateTotals(data.governed);
+
+      document.getElementById('stat-a-tokens').innerText = totA.tokens.toLocaleString();
+      document.getElementById('stat-a-cost').innerText = '$' + totA.cost.toFixed(4);
+      document.getElementById('stat-a-status').innerText = 'EXHAUSTED / FAILED';
+
+      document.getElementById('stat-b-tokens').innerText = totB.tokens.toLocaleString();
+      document.getElementById('stat-b-cost').innerText = '$' + totB.cost.toFixed(4);
+      document.getElementById('stat-b-status').innerText = 'CONTROLLED HANDOFF';
+
+      renderTable('table-a-body', data.unconstrained);
+      renderTable('table-b-body', data.governed);
+      renderCharts(totA, totB);
+    }
+
+    // Init
+    window.onload = () => switchData('synthetic');
+  </script>
 </body>
 </html>

@@ -89,5 +89,20 @@ def main():
     print(f"  • Cost Differential:     ${res_a['cost_usd']:.4f} (Unresolved) vs ${res_b['cost_usd']:.4f} (Governed Handoff)")
     print("=" * 80 + "\n")
 
+    # 4. EXPORT LIVE TRACES FOR GITHUB PAGES
+    import json
+    from pathlib import Path
+    if mode == "live":
+        trace_path = Path(__file__).parent / "data" / "live_traces.json"
+        live_data = {
+            "unconstrained": res_a["turns"],
+            "governed": res_b["turns"]
+        }
+        with open(trace_path, "w") as f:
+            json.dump(live_data, f, indent=2)
+        print(f"
+[+] Saved live telemetry to {trace_path} for GitHub Pages UI.
+")
+
 if __name__ == "__main__":
     main()

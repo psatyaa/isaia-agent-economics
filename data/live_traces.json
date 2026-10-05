@@ -1,0 +1,78 @@
+{
+  "unconstrained": [
+    {
+      "turn": 1,
+      "phase": "Plan & Act",
+      "model_tier": "frontier",
+      "in_tokens": 1120,
+      "out_tokens": 85,
+      "action": "query_cost_api(sub-prod-analytics-01) -> HTTP 404",
+      "status": "HTTP 404 Not Found"
+    },
+    {
+      "turn": 2,
+      "phase": "Reflect & Retry",
+      "model_tier": "frontier",
+      "in_tokens": 2640,
+      "out_tokens": 120,
+      "action": "Full 45-line stack trace ingested. Retry syntax attempted.",
+      "status": "Stack Dump Compounding (+135%)"
+    },
+    {
+      "turn": 3,
+      "phase": "Fallback Search",
+      "model_tier": "frontier",
+      "in_tokens": 5480,
+      "out_tokens": 160,
+      "action": "list_resources('all') -> Swallows raw 8KB inventory JSON.",
+      "status": "JSON Bloat (+107%)"
+    },
+    {
+      "turn": 4,
+      "phase": "Degraded Loop",
+      "model_tier": "frontier",
+      "in_tokens": 9890,
+      "out_tokens": 140,
+      "action": "Context saturated. Loops same failed query across prior stack traces.",
+      "status": "Loop Saturation / Failed (+80%)"
+    }
+  ],
+  "governed": [
+    {
+      "turn": 1,
+      "phase": "Intent Parsing",
+      "model_tier": "slm",
+      "in_tokens": 350,
+      "out_tokens": 45,
+      "action": "SLM (8B) routes intent and prepares cost query.",
+      "status": "SLM Fast Triage"
+    },
+    {
+      "turn": 2,
+      "phase": "Error Compaction",
+      "model_tier": "slm",
+      "in_tokens": 620,
+      "out_tokens": 60,
+      "action": "404 caught; stack trace pruned to clean error code.",
+      "status": "Context Compacted"
+    },
+    {
+      "turn": 3,
+      "phase": "Circuit Breaker",
+      "model_tier": "frontier",
+      "in_tokens": 880,
+      "out_tokens": 95,
+      "action": "Max iteration limit reached (3/3). Breaker trips gracefully.",
+      "status": "Circuit Breaker Triggered"
+    },
+    {
+      "turn": 4,
+      "phase": "Handoff Generator",
+      "model_tier": "slm",
+      "in_tokens": 300,
+      "out_tokens": 180,
+      "action": "Packages diagnostic state snapshot and remediation recommendation.",
+      "status": "Controlled Exit (Handoff)"
+    }
+  ]
+}
