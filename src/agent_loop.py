@@ -225,7 +225,7 @@ class AgentHarness:
 
         # Turn 2: Error compaction (Control 4: Compact Context)
         raw_error = query_cost_api(DEFAULT_TARGET_SUBSCRIPTION)
-        compact_error = self.controls.compact_tool_output(raw_error)
+        compact_error = self.controls.compact_context(raw_error, "query_cost_api")
         resp2 = self._call_groq(
             model=self.slm_model,
             system_prompt="You are a compact error parser. Summarize this error in 15 words: " + compact_error,
