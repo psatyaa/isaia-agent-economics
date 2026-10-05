@@ -46,8 +46,8 @@ def main():
             f"Turn {t['turn']}",
             t["phase"],
             t["model_tier"].upper(),
-            f"{t['in_tokens']:,} tokens",
-            f"{t['cum_in_tokens']:,} tokens",
+            f"{t['in_tokens']:,}",
+            f"{t['cum_in_tokens']:,}",
             f"${t['turn_cost_usd']:.4f}",
             t["status"],
         ])
@@ -69,8 +69,8 @@ def main():
             f"Turn {t['turn']}",
             t["phase"],
             t["model_tier"].upper(),
-            f"{t['in_tokens']:,} tokens",
-            f"{t['cum_in_tokens']:,} tokens",
+            f"{t['in_tokens']:,}",
+            f"{t['cum_in_tokens']:,}",
             f"${t['turn_cost_usd']:.4f}",
             t["status"],
         ])
@@ -85,7 +85,7 @@ def main():
     savings_pct = (tok_saved / res_a["total_in_tokens"]) * 100 if res_a["total_in_tokens"] > 0 else 0
     print("\n" + "=" * 80)
     print("  EXECUTIVE SUMMARY (SLIDE 10)")
-    print(f"  • Compute Waste Avoided: {tok_saved:,} tokens (-{savings_pct:.1f}% reduction)")
+    print(f"  • Compute Waste Avoided: {tok_saved:,} (-{savings_pct:.1f}% reduction)")
     print(f"  • Cost Differential:     ${res_a['cost_usd']:.4f} (Unresolved) vs ${res_b['cost_usd']:.4f} (Governed Handoff)")
     print("=" * 80 + "\n")
 
