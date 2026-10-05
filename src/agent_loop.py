@@ -22,6 +22,8 @@ class AgentHarness:
         self.controls = controls
         self.mode = mode.lower()
         self.api_key = api_key or os.environ.get("GROQ_API_KEY")
+        self.frontier_model = MODEL_FRONTIER
+        self.slm_model = MODEL_SLM
         self.telemetry = TelemetryTracker()
         self._groq_client = None
 
@@ -33,6 +35,27 @@ class AgentHarness:
                 try:
                     from groq import Groq
                     self._groq_client = Groq(api_key=self.api_key)
+                    
+                    # Auto-discover active models to prevent model_decommissioned errors
+                    active_models = [m.id for m in self._groq_client.models.list().data]
+                    
+                    # 1. Resolve Frontier (Largest/70B+)
+                    frontier_candidates = ["llama-3.3-70b-specdec", "llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "llama3-70b-8192", "mixtral-8x7b-32768"]
+                    for candidate in frontier_candidates:
+                        if candidate in active_models:
+                            self.frontier_model = candidate
+                            break
+                    else:
+                        self.frontier_model = active_models[0]
+                    
+                    # 2. Resolve SLM (Small/8B)
+                    slm_candidates = ["llama-3.1-8b-instant", "llama3-8b-8192", "gemma2-9b-it"]
+                    for candidate in slm_candidates:
+                        if candidate in active_models:
+                            self.slm_model = candidate
+                            break
+                    else:
+                        self.slm_model = active_models[-1]
                 except Exception as e:
                     print(f"⚠️ [AgentHarness] Error initializing Groq client ({e}). Falling back to REPLAY mode.")
                     self.mode = "replay"
@@ -100,7 +123,7 @@ class AgentHarness:
         
         # Turn 1: Initial query
         resp1 = self._call_groq(
-            model=MODEL_FRONTIER,
+            model=self.frontier_model,
             system_prompt="You are an autonomous cloud FinOps agent. Plan and execute an API query to inspect cloud costs.",
             user_prompt=context_accumulator
         )
@@ -112,7 +135,7 @@ class AgentHarness:
 
         # Turn 2: Swallow full stack trace and retry
         resp2 = self._call_groq(
-            model=MODEL_FRONTIER,
+            model=self.frontier_model,
             system_prompt="Analyze the error response and formulate next steps. Include full previous context.",
             user_prompt=context_accumulator
         )
@@ -123,7 +146,7 @@ class AgentHarness:
         raw_inventory = list_resources("all")
         context_accumulator += f"\n\n[Tool Output]: list_resources('all') returned:\n{raw_inventory[:4000]}"
         resp3 = self._call_groq(
-            model=MODEL_FRONTIER,
+            model=self.frontier_model,
             system_prompt="Analyze full inventory dump to find the failing resources.",
             user_prompt=context_accumulator
         )
@@ -131,7 +154,7 @@ class AgentHarness:
 
         # Turn 4: Saturated degraded loop
         resp4 = self._call_groq(
-            model=MODEL_FRONTIER,
+            model=self.frontier_model,
             system_prompt="Attempt further resolution based on the full accumulated history.",
             user_prompt=context_accumulator
         )
@@ -192,7 +215,7 @@ class AgentHarness:
         """Executes real live API calls against Groq with governed controls (SLM triage, compaction, circuit breaker)."""
         # Turn 1: SLM Fast Triage (Control 2: SLM Routing)
         resp1 = self._call_groq(
-            model=MODEL_SLM,
+            model=self.slm_model,
             system_prompt="You are a lightweight intent classifier. Classify target subscription query intent in one sentence.",
             user_prompt="Goal: Investigate +38% cost anomaly for subscription sub-prod-analytics-01."
         )
@@ -204,7 +227,7 @@ class AgentHarness:
         raw_error = query_cost_api(DEFAULT_TARGET_SUBSCRIPTION)
         compact_error = self.controls.compact_tool_output(raw_error)
         resp2 = self._call_groq(
-            model=MODEL_SLM,
+            model=self.slm_model,
             system_prompt="You are a compact error parser. Summarize this error in 15 words: " + compact_error,
             user_prompt="State error code and reason."
         )
@@ -212,7 +235,7 @@ class AgentHarness:
 
         # Turn 3: Circuit breaker trip check (Control 1: max_iterations=3)
         resp3 = self._call_groq(
-            model=MODEL_FRONTIER,
+            model=self.frontier_model,
             system_prompt="System policy: Max iterations reached (3/3). Trigger controlled escalation.",
             user_prompt="Explain why breaker tripped: Target subscription returned HTTP 404 SubscriptionNotFound."
         )
@@ -220,7 +243,7 @@ class AgentHarness:
 
         # Turn 4: SLM Human Handoff generation (Human-in-the-loop)
         resp4 = self._call_groq(
-            model=MODEL_SLM,
+            model=self.slm_model,
             system_prompt="Format an incident handoff summary with root cause and recommended remediation.",
             user_prompt="Error: HTTP 404 SubscriptionNotFound for sub-prod-analytics-01. Fix: Migrate to sub-prod-v2-analytics."
         )
