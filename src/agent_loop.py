@@ -139,6 +139,8 @@ class AgentHarness:
             system_prompt="Analyze the error response and formulate next steps. Include full previous context.",
             user_prompt=context_accumulator
         )
+        if not resp2:
+            return self._run_unconstrained_replay()
         context_accumulator += f"\n\n[Agent Turn 2 Reflection]: {resp2['text']}\n[Tool Output]: Full 45-line stack trace ingested."
         self.telemetry.record_turn(2, "Reflect & Retry", "frontier", resp2["in_tokens"], resp2["out_tokens"], "Full stack trace ingested. Retry syntax attempted.", "Stack Dump Compounding (+135%)")
 
@@ -150,6 +152,8 @@ class AgentHarness:
             system_prompt="Analyze full inventory dump to find the failing resources.",
             user_prompt=context_accumulator
         )
+        if not resp3:
+            return self._run_unconstrained_replay()
         self.telemetry.record_turn(3, "Fallback Search", "frontier", resp3["in_tokens"], resp3["out_tokens"], "list_resources('all') -> Swallows raw 8KB inventory JSON.", "JSON Bloat (+107%)")
 
         # Turn 4: Saturated degraded loop
@@ -158,6 +162,8 @@ class AgentHarness:
             system_prompt="Attempt further resolution based on the full accumulated history.",
             user_prompt=context_accumulator
         )
+        if not resp4:
+            return self._run_unconstrained_replay()
         self.telemetry.record_turn(4, "Degraded Loop", "frontier", resp4["in_tokens"], resp4["out_tokens"], "Context saturated. Loops same failed query across prior stack traces.", "Loop Saturation / Failed (+80%)")
 
         return {
@@ -231,6 +237,8 @@ class AgentHarness:
             system_prompt="You are a compact error parser. Summarize this error in 15 words: " + compact_error,
             user_prompt="State error code and reason."
         )
+        if not resp2:
+            return self._run_governed_replay()
         self.telemetry.record_turn(2, "Error Compaction", "slm", resp2["in_tokens"], resp2["out_tokens"], "404 caught; stack trace pruned to clean error code.", "Context Compacted")
 
         # Turn 3: Circuit breaker trip check (Control 1: max_iterations=3)
@@ -239,6 +247,8 @@ class AgentHarness:
             system_prompt="System policy: Max iterations reached (3/3). Trigger controlled escalation.",
             user_prompt="Explain why breaker tripped: Target subscription returned HTTP 404 SubscriptionNotFound."
         )
+        if not resp3:
+            return self._run_governed_replay()
         self.telemetry.record_turn(3, "Circuit Breaker", "frontier", resp3["in_tokens"], resp3["out_tokens"], f"Max iteration limit reached ({self.controls.max_iterations}/{self.controls.max_iterations}). Breaker trips gracefully.", "Circuit Breaker Triggered")
 
         # Turn 4: SLM Human Handoff generation (Human-in-the-loop)
@@ -247,6 +257,8 @@ class AgentHarness:
             system_prompt="Format an incident handoff summary with root cause and recommended remediation.",
             user_prompt="Error: HTTP 404 SubscriptionNotFound for sub-prod-analytics-01. Fix: Migrate to sub-prod-v2-analytics."
         )
+        if not resp4:
+            return self._run_governed_replay()
         self.telemetry.record_turn(4, "Handoff Generator", "slm", resp4["in_tokens"], resp4["out_tokens"], "Packages diagnostic state snapshot and remediation recommendation.", "Controlled Exit (Handoff)")
 
         tokens_saved = max(0, 19130 - self.telemetry.cumulative_in_tokens)
