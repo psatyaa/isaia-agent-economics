@@ -46,8 +46,8 @@ def main():
             f"Turn {t['turn']}",
             t["phase"],
             t["model_tier"].upper(),
-            f"{t['in_tokens']:,} toks",
-            f"{t['cum_in_tokens']:,} toks",
+            f"{t['in_tokens']:,} tokens",
+            f"{t['cum_in_tokens']:,} tokens",
             f"${t['turn_cost_usd']:.4f}",
             t["status"],
         ])
@@ -69,8 +69,8 @@ def main():
             f"Turn {t['turn']}",
             t["phase"],
             t["model_tier"].upper(),
-            f"{t['in_tokens']:,} toks",
-            f"{t['cum_in_tokens']:,} toks",
+            f"{t['in_tokens']:,} tokens",
+            f"{t['cum_in_tokens']:,} tokens",
             f"${t['turn_cost_usd']:.4f}",
             t["status"],
         ])
