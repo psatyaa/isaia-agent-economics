@@ -37,23 +37,28 @@ class AgentHarness:
                     print(f"⚠️ [AgentHarness] Error initializing Groq client ({e}). Falling back to REPLAY mode.")
                     self.mode = "replay"
 
-    def _call_groq(self, model: str, system_prompt: str, user_prompt: str) -> Dict[str, Any]:
+    def _call_groq(self, model: str, system_prompt: str, user_prompt: str) -> Optional[Dict[str, Any]]:
         """Calls Groq API and extracts output tokens and response text."""
-        chat_completion = self._groq_client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            model=model,
-            temperature=0.2,
-            max_tokens=256,
-        )
-        usage = chat_completion.usage
-        return {
-            "text": chat_completion.choices[0].message.content,
-            "in_tokens": usage.prompt_tokens,
-            "out_tokens": usage.completion_tokens
-        }
+        try:
+            chat_completion = self._groq_client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                model=model,
+                temperature=0.2,
+                max_tokens=256,
+            )
+            usage = chat_completion.usage
+            return {
+                "text": chat_completion.choices[0].message.content,
+                "in_tokens": usage.prompt_tokens,
+                "out_tokens": usage.completion_tokens
+            }
+        except Exception as e:
+            print(f"\n⚠️ [Groq API Notice]: {e}")
+            print("🔄 Seamlessly falling back to deterministic REPLAY mode so presentation continues uninterrupted...\n")
+            return None
 
     def run_unconstrained(self) -> dict:
         """Runs the unconstrained agent loop (reproducing Slide 7)."""
@@ -99,6 +104,8 @@ class AgentHarness:
             system_prompt="You are an autonomous cloud FinOps agent. Plan and execute an API query to inspect cloud costs.",
             user_prompt=context_accumulator
         )
+        if not resp1:
+            return self._run_unconstrained_replay()
         tool_out1 = query_cost_api(DEFAULT_TARGET_SUBSCRIPTION)
         context_accumulator += f"\n\n[Agent Turn 1 Action]: query_cost_api('{DEFAULT_TARGET_SUBSCRIPTION}')\n[Tool Output]:\n{tool_out1}"
         self.telemetry.record_turn(1, "Plan & Act", "frontier", resp1["in_tokens"], resp1["out_tokens"], f"query_cost_api({DEFAULT_TARGET_SUBSCRIPTION}) -> HTTP 404", "HTTP 404 Not Found")
@@ -189,6 +196,8 @@ class AgentHarness:
             system_prompt="You are a lightweight intent classifier. Classify target subscription query intent in one sentence.",
             user_prompt="Goal: Investigate +38% cost anomaly for subscription sub-prod-analytics-01."
         )
+        if not resp1:
+            return self._run_governed_replay()
         self.telemetry.record_turn(1, "Intent Parsing", "slm", resp1["in_tokens"], resp1["out_tokens"], "SLM (8B) routes intent and prepares cost query.", "SLM Fast Triage")
 
         # Turn 2: Error compaction (Control 4: Compact Context)
