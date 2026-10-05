@@ -53,7 +53,7 @@ class AgentHarness:
                             
                         # Groq API doesn't expose a 'capabilities.chat' boolean yet, so we filter 
                         # out audio/vision/gated namespaces instead of hardcoding model brands.
-                        if any(x in m_id for x in ["whisper", "canopylabs", "vision", "embedding", "whisper-large-v3"]):
+                        if any(x in m_id for x in ["whisper", "canopylabs", "vision", "embedding", "whisper-large-v3", "guard", "classifier", "eval"]):
                             continue
                             
                         # Extract parameter size for mathematical sorting (e.g. 70b -> 70, 8x7b -> 56)
