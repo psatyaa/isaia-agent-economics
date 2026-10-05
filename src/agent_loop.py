@@ -39,17 +39,18 @@ class AgentHarness:
                     # Auto-discover active models to prevent model_decommissioned errors
                     active_models = [m.id for m in self._groq_client.models.list().data]
                     
+                    # Safely filter for text generation models only
+                    text_models = [m for m in active_models if any(kw in m.lower() for kw in ["llama", "mixtral", "gemma"]) and "whisper" not in m.lower()]
+                    if not text_models:
+                        text_models = ["llama3-8b-8192"] # Absolute fallback if list is somehow empty
+                        
                     # 1. Resolve Frontier (Largest/70B+)
-                    frontier = next((m for m in active_models if "70b" in m.lower()), None)
-                    if not frontier:
-                        frontier = next((m for m in active_models if "mixtral" in m.lower()), None)
-                    self.frontier_model = frontier or active_models[0]
+                    frontier = next((m for m in text_models if any(kw in m.lower() for kw in ["70b", "90b", "mixtral"])), None)
+                    self.frontier_model = frontier or text_models[0]
                     
-                    # 2. Resolve SLM (Small/8B)
-                    slm = next((m for m in active_models if "8b" in m.lower() and "llama" in m.lower()), None)
-                    if not slm:
-                        slm = next((m for m in active_models if "gemma" in m.lower() or "8b" in m.lower()), None)
-                    self.slm_model = slm or active_models[-1]
+                    # 2. Resolve SLM (Small)
+                    slm = next((m for m in text_models if any(kw in m.lower() for kw in ["8b", "3b", "1b", "gemma"])), None)
+                    self.slm_model = slm or text_models[-1]
                 except Exception as e:
                     print(f"⚠️ [AgentHarness] Error initializing Groq client ({e}). Falling back to REPLAY mode.")
                     self.mode = "replay"
