@@ -1,7 +1,7 @@
 """Configuration constants, pricing tables, and model definitions for ISAIA Agent Economics harness."""
 
 # Model definitions
-MODEL_FRONTIER = "llama-3.3-70b-versatile" # High-capability reasoning tier
+MODEL_FRONTIER = "llama-3.1-70b-versatile" # High-capability reasoning tier
 MODEL_SLM = "llama-3.1-8b-instant"          # Fast, cost-efficient small language model tier
 
 # List-price equivalent rates (per 1M tokens) based on industry frontier vs SLM baselines
