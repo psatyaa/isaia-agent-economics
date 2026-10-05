@@ -40,22 +40,16 @@ class AgentHarness:
                     active_models = [m.id for m in self._groq_client.models.list().data]
                     
                     # 1. Resolve Frontier (Largest/70B+)
-                    frontier_candidates = ["llama-3.3-70b-specdec", "llama-3.3-70b-versatile", "llama-3.1-70b-versatile", "llama3-70b-8192", "mixtral-8x7b-32768"]
-                    for candidate in frontier_candidates:
-                        if candidate in active_models:
-                            self.frontier_model = candidate
-                            break
-                    else:
-                        self.frontier_model = active_models[0]
+                    frontier = next((m for m in active_models if "70b" in m.lower()), None)
+                    if not frontier:
+                        frontier = next((m for m in active_models if "mixtral" in m.lower()), None)
+                    self.frontier_model = frontier or active_models[0]
                     
                     # 2. Resolve SLM (Small/8B)
-                    slm_candidates = ["llama-3.1-8b-instant", "llama3-8b-8192", "gemma2-9b-it"]
-                    for candidate in slm_candidates:
-                        if candidate in active_models:
-                            self.slm_model = candidate
-                            break
-                    else:
-                        self.slm_model = active_models[-1]
+                    slm = next((m for m in active_models if "8b" in m.lower() and "llama" in m.lower()), None)
+                    if not slm:
+                        slm = next((m for m in active_models if "gemma" in m.lower() or "8b" in m.lower()), None)
+                    self.slm_model = slm or active_models[-1]
                 except Exception as e:
                     print(f"⚠️ [AgentHarness] Error initializing Groq client ({e}). Falling back to REPLAY mode.")
                     self.mode = "replay"
