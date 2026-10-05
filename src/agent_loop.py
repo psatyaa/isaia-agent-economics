@@ -99,10 +99,13 @@ class AgentHarness:
                 max_tokens=256,
             )
             usage = chat_completion.usage
+            sys_snip = system_prompt.replace('\n', ' ')[:50]
+            usr_snip = user_prompt.replace('\n', ' ')[:50]
             return {
                 "text": chat_completion.choices[0].message.content,
                 "in_tokens": usage.prompt_tokens,
-                "out_tokens": usage.completion_tokens
+                "out_tokens": usage.completion_tokens,
+                "prompt_snippet": f"SYS: {sys_snip}... | USR: {usr_snip}..."
             }
         except Exception as e:
             print(f"\n⚠️ [Groq API Notice]: {e}")
