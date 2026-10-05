@@ -39,18 +39,49 @@ class AgentHarness:
                     # Auto-discover active models to prevent model_decommissioned errors
                     active_models = [m.id for m in self._groq_client.models.list().data]
                     
-                    # Safely filter for text generation models only
-                    text_models = [m for m in active_models if any(kw in m.lower() for kw in ["llama", "mixtral", "gemma"]) and "whisper" not in m.lower()]
-                    if not text_models:
-                        text_models = ["llama3-8b-8192"] # Absolute fallback if list is somehow empty
-                        
-                    # 1. Resolve Frontier (Largest/70B+)
-                    frontier = next((m for m in text_models if any(kw in m.lower() for kw in ["70b", "90b", "mixtral"])), None)
-                    self.frontier_model = frontier or text_models[0]
+                    # --- DYNAMIC TEXT MODEL AUTO-DISCOVERY ---
+                    import re
+                    # 1. Fetch all models and filter out deprecated ones (if Groq API exposes 'active' attribute)
+                    all_models = self._groq_client.models.list().data
                     
-                    # 2. Resolve SLM (Small)
-                    slm = next((m for m in text_models if any(kw in m.lower() for kw in ["8b", "3b", "1b", "gemma"])), None)
-                    self.slm_model = slm or text_models[-1]
+                    candidates = []
+                    for m in all_models:
+                        m_id = m.id.lower()
+                        # Exclude if explicitly marked deprecated
+                        if getattr(m, 'active', None) is False:
+                            continue
+                            
+                        # Groq API doesn't expose a 'capabilities.chat' boolean yet, so we filter 
+                        # out audio/vision/gated namespaces instead of hardcoding model brands.
+                        if any(x in m_id for x in ["whisper", "canopylabs", "vision", "embedding", "whisper-large-v3"]):
+                            continue
+                            
+                        # Extract parameter size for mathematical sorting (e.g. 70b -> 70, 8x7b -> 56)
+                        size = 0
+                        mo_moe = re.search(r'(\d+)x(\d+)b', m_id)
+                        mo_std = re.search(r'(\d+)b', m_id)
+                        
+                        if mo_moe:
+                            size = int(mo_moe.group(1)) * int(mo_moe.group(2))
+                        elif mo_std:
+                            size = int(mo_std.group(1))
+                        elif "mixtral" in m_id:
+                            size = 56 # Fallback size for mixtral if missing 8x7b
+                            
+                        candidates.append((size, m.id))
+                        
+                    if not candidates:
+                        self.frontier_model = "llama3-70b-8192"
+                        self.slm_model = "llama3-8b-8192"
+                    else:
+                        # Sort models strictly by parameter size (ascending)
+                        candidates.sort(key=lambda x: x[0])
+                        
+                        # Frontier = Largest parameter model in your active account
+                        self.frontier_model = candidates[-1][1]
+                        
+                        # SLM = Smallest parameter model in your active account
+                        self.slm_model = candidates[0][1]
                 except Exception as e:
                     print(f"⚠️ [AgentHarness] Error initializing Groq client ({e}). Falling back to REPLAY mode.")
                     self.mode = "replay"
