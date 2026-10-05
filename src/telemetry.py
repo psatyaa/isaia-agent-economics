@@ -8,7 +8,7 @@ class TelemetryTracker:
         self.cumulative_out_tokens = 0
         self.cumulative_cost_usd = 0.0
 
-    def record_turn(self, turn_num: int, phase: str, model_tier: str, in_tokens: int, out_tokens: int, action_summary: str, status: str):
+    def record_turn(self, turn_num: int, phase: str, model_tier: str, in_tokens: int, out_tokens: int, action_summary: str, status: str, prompt_snippet: str = ""):
         rates = PRICING[model_tier]
         turn_cost = (in_tokens / 1_000_000 * rates["input_per_1m"]) + (out_tokens / 1_000_000 * rates["output_per_1m"])
         
@@ -27,7 +27,8 @@ class TelemetryTracker:
             "turn_cost_usd": turn_cost,
             "cum_cost_usd": self.cumulative_cost_usd,
             "action": action_summary,
-            "status": status
+            "status": status,
+            "prompt_snippet": prompt_snippet
         }
         self.turns.append(record)
         return record

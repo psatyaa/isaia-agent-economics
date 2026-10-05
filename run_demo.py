@@ -42,7 +42,7 @@ def main():
 
     table_a = []
     for t in res_a["turns"]:
-        table_a.append([
+        row = [
             f"Turn {t['turn']}",
             t["phase"],
             t["model_tier"].upper(),
@@ -50,8 +50,14 @@ def main():
             f"{t['cum_in_tokens']:,}",
             f"${t['turn_cost_usd']:.4f}",
             t["status"],
-        ])
+        ]
+        if mode == 'live' and 'prompt_snippet' in t:
+            row.append(t['prompt_snippet'])
+        table_a.append(row)
+    
     headers = ["Turn", "Phase", "Tier", "Input Tokens", "Accum. In", "Turn Cost", "Status"]
+    if mode == 'live':
+        headers.append("Prompt Snippet")
     print(tabulate(table_a, headers=headers, tablefmt="fancy_grid"))
     print(f"Run A Workload: {res_a['total_in_tokens']:,} Input Tokens | Spend: ${res_a['cost_usd']:.4f}")
     print(f"Run A Outcome:  {res_a['status']}")
@@ -65,7 +71,7 @@ def main():
 
     table_b = []
     for t in res_b["turns"]:
-        table_b.append([
+        row = [
             f"Turn {t['turn']}",
             t["phase"],
             t["model_tier"].upper(),
@@ -73,7 +79,10 @@ def main():
             f"{t['cum_in_tokens']:,}",
             f"${t['turn_cost_usd']:.4f}",
             t["status"],
-        ])
+        ]
+        if mode == 'live' and 'prompt_snippet' in t:
+            row.append(t['prompt_snippet'])
+        table_b.append(row)
     print(tabulate(table_b, headers=headers, tablefmt="fancy_grid"))
     print(f"Run B Workload: {res_b['total_in_tokens']:,} Input Tokens | Spend: ${res_b['cost_usd']:.4f}")
     print(f"Run B Outcome:  {res_b['status']}")

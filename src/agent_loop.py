@@ -157,7 +157,7 @@ class AgentHarness:
             return self._run_unconstrained_replay()
         tool_out1 = query_cost_api(DEFAULT_TARGET_SUBSCRIPTION)
         context_accumulator += f"\n\n[Agent Turn 1 Action]: query_cost_api('{DEFAULT_TARGET_SUBSCRIPTION}')\n[Tool Output]:\n{tool_out1}"
-        self.telemetry.record_turn(1, "Plan & Act", "frontier", resp1["in_tokens"], resp1["out_tokens"], f"query_cost_api({DEFAULT_TARGET_SUBSCRIPTION}) -> HTTP 404", "HTTP 404 Not Found")
+        self.telemetry.record_turn(1, "Plan & Act", "frontier", resp1["in_tokens"], resp1["out_tokens"], f"query_cost_api({DEFAULT_TARGET_SUBSCRIPTION}) -> HTTP 404", "HTTP 404 Not Found", resp1["prompt_snippet"])
 
         # Turn 2: Swallow full stack trace and retry
         resp2 = self._call_groq(
@@ -168,7 +168,7 @@ class AgentHarness:
         if not resp2:
             return self._run_unconstrained_replay()
         context_accumulator += f"\n\n[Agent Turn 2 Reflection]: {resp2['text']}\n[Tool Output]: Full 45-line stack trace ingested."
-        self.telemetry.record_turn(2, "Reflect & Retry", "frontier", resp2["in_tokens"], resp2["out_tokens"], "Full stack trace ingested. Retry syntax attempted.", "Stack Dump Compounding (+135%)")
+        self.telemetry.record_turn(2, "Reflect & Retry", "frontier", resp2["in_tokens"], resp2["out_tokens"], "Full stack trace ingested. Retry syntax attempted.", "Stack Dump Compounding (+135%)", resp2["prompt_snippet"])
 
         # Turn 3: Swallowing noisy resource list
         raw_inventory = list_resources("all")
@@ -180,7 +180,7 @@ class AgentHarness:
         )
         if not resp3:
             return self._run_unconstrained_replay()
-        self.telemetry.record_turn(3, "Fallback Search", "frontier", resp3["in_tokens"], resp3["out_tokens"], "list_resources('all') -> Swallows raw 8KB inventory JSON.", "JSON Bloat (+107%)")
+        self.telemetry.record_turn(3, "Fallback Search", "frontier", resp3["in_tokens"], resp3["out_tokens"], "list_resources('all') -> Swallows raw 8KB inventory JSON.", "JSON Bloat (+107%)", resp3["prompt_snippet"])
 
         # Turn 4: Saturated degraded loop
         resp4 = self._call_groq(
@@ -190,7 +190,7 @@ class AgentHarness:
         )
         if not resp4:
             return self._run_unconstrained_replay()
-        self.telemetry.record_turn(4, "Degraded Loop", "frontier", resp4["in_tokens"], resp4["out_tokens"], "Context saturated. Loops same failed query across prior stack traces.", "Loop Saturation / Failed (+80%)")
+        self.telemetry.record_turn(4, "Degraded Loop", "frontier", resp4["in_tokens"], resp4["out_tokens"], "Context saturated. Loops same failed query across prior stack traces.", "Loop Saturation / Failed (+80%)", resp4["prompt_snippet"])
 
         return {
             "mode": "live",
@@ -253,7 +253,7 @@ class AgentHarness:
         )
         if not resp1:
             return self._run_governed_replay()
-        self.telemetry.record_turn(1, "Intent Parsing", "slm", resp1["in_tokens"], resp1["out_tokens"], "SLM (8B) routes intent and prepares cost query.", "SLM Fast Triage")
+        self.telemetry.record_turn(1, "Intent Parsing", "slm", resp1["in_tokens"], resp1["out_tokens"], "SLM (8B) routes intent and prepares cost query.", "SLM Fast Triage", resp1["prompt_snippet"])
 
         # Turn 2: Error compaction (Control 4: Compact Context)
         raw_error = query_cost_api(DEFAULT_TARGET_SUBSCRIPTION)
@@ -265,7 +265,7 @@ class AgentHarness:
         )
         if not resp2:
             return self._run_governed_replay()
-        self.telemetry.record_turn(2, "Error Compaction", "slm", resp2["in_tokens"], resp2["out_tokens"], "404 caught; stack trace pruned to clean error code.", "Context Compacted")
+        self.telemetry.record_turn(2, "Error Compaction", "slm", resp2["in_tokens"], resp2["out_tokens"], "404 caught; stack trace pruned to clean error code.", "Context Compacted", resp2["prompt_snippet"])
 
         # Turn 3: Circuit breaker trip check (Control 1: max_iterations=3)
         resp3 = self._call_groq(
@@ -275,7 +275,7 @@ class AgentHarness:
         )
         if not resp3:
             return self._run_governed_replay()
-        self.telemetry.record_turn(3, "Circuit Breaker", "frontier", resp3["in_tokens"], resp3["out_tokens"], f"Max iteration limit reached ({self.controls.max_iterations}/{self.controls.max_iterations}). Breaker trips gracefully.", "Circuit Breaker Triggered")
+        self.telemetry.record_turn(3, "Circuit Breaker", "frontier", resp3["in_tokens"], resp3["out_tokens"], f"Max iteration limit reached ({self.controls.max_iterations}/{self.controls.max_iterations}). Breaker trips gracefully.", "Circuit Breaker Triggered", resp3["prompt_snippet"])
 
         # Turn 4: SLM Human Handoff generation (Human-in-the-loop)
         resp4 = self._call_groq(
@@ -285,7 +285,7 @@ class AgentHarness:
         )
         if not resp4:
             return self._run_governed_replay()
-        self.telemetry.record_turn(4, "Handoff Generator", "slm", resp4["in_tokens"], resp4["out_tokens"], "Packages diagnostic state snapshot and remediation recommendation.", "Controlled Exit (Handoff)")
+        self.telemetry.record_turn(4, "Handoff Generator", "slm", resp4["in_tokens"], resp4["out_tokens"], "Packages diagnostic state snapshot and remediation recommendation.", "Controlled Exit (Handoff)", resp4["prompt_snippet"])
 
         tokens_saved = max(0, 19130 - self.telemetry.cumulative_in_tokens)
         handoff_card = self.telemetry.generate_handoff_card(
